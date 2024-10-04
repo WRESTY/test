@@ -1,2 +1,110 @@
-Some text
-Some more text
+<?php
+$a = 0.301;
+$b = 1931;
+$c = 11.58;
+
+$num = [$a, $b, $c];
+
+function getDecPl($n) {
+    $s = strval($n);
+    if (strpos($s, '.') !== false) {
+        return strlen(rtrim(substr($s, strpos($s, '.') + 1), '0'));
+    } else {
+        return 0;
+    }
+}
+
+function countSigDig($n) {
+    if ($n == 0) {
+        return 0;
+    }
+    $s = rtrim(sprintf('%.15f', $n), '0');
+    $s = ltrim($s, '0.');
+    $s = str_replace('.', '', $s);
+    return strlen($s);
+}
+
+function roundSigFig($n, $d) {
+    if ($n == 0) {
+        return 0;
+    }
+    $p = ceil(log10(abs($n)));
+    $power = $d - $p;
+    $m = pow(10, $power);
+    $shifted = round($n * $m);
+    return $shifted / $m;
+}
+
+$min_dp = null;
+$min_dp_num = null;
+foreach ($num as $n) {
+    $dp = getDecPl($n);
+    if ($min_dp === null || $dp < $min_dp) {
+        $min_dp = $dp;
+        $min_dp_num = $n;
+    }
+}
+
+echo "Число с меньшим количеством цифр после запятой: $min_dp_num\n\n";
+
+$rnum = [];
+foreach ($num as $n) {
+    if ($n !== $min_dp_num) {
+        $rn = round($n, $min_dp + 1);
+    } else {
+        $rn = $n;
+    }
+    $rnum[] = $rn;
+}
+
+$sum = array_sum($rnum);
+$sum_r = round($sum, $min_dp);
+
+$diff = $rnum[0];
+for ($i = 1; $i < count($rnum); $i++) {
+    $diff -= $rnum[$i];
+}
+$diff_r = round($diff, $min_dp);
+
+echo "Сумма упрощенных чисел: $sum_r\n";
+echo "Разность упрощенных чисел: $diff_r\n\n";
+
+$min_sd = null;
+$min_sd_num = null;
+foreach ($num as $n) {
+    $sd = countSigDig($n);
+    if ($min_sd === null || $sd < $min_sd) {
+        $min_sd = $sd;
+        $min_sd_num = $n;
+    }
+}
+
+echo "Сомножитель, содержащий наименьшее число значащих цифр: $min_sd_num\n\n";
+
+$rfac = [];
+foreach ($num as $n) {
+    if ($n !== $min_sd_num) {
+        $d_keep = $min_sd + 1;
+        $rn = roundSigFig($n, $d_keep);
+    } else {
+        $rn = $n;
+    }
+    $rfac[] = $rn;
+}
+
+$prod = array_product($rfac);
+$prod_r = roundSigFig($prod, $min_sd);
+echo "Произведение упрощенных чисел: $prod_r\n\n";
+echo "Квадрат числа 1: " . roundSigFig(pow($a, 2), countSigDig($a)) . "\n";
+echo "Квадрат числа 2: " . roundSigFig(pow($b, 2), countSigDig($b)) . "\n";
+echo "Квадрат числа 3: " . roundSigFig(pow($c, 2), countSigDig($c)) . "\n\n";
+echo "Куб числа 1: " . roundSigFig(pow($a, 3), countSigDig($a)) . "\n";
+echo "Куб числа 2: " . roundSigFig(pow($b, 3), countSigDig($b)) . "\n";
+echo "Куб числа 3: " . roundSigFig(pow($c, 3), countSigDig($c)) . "\n\n";
+echo "Квадратный корень числа 1: " . roundSigFig(sqrt($a), countSigDig($a)) . "\n";
+echo "Квадратный корень числа 2: " . roundSigFig(sqrt($b), countSigDig($b)) . "\n";
+echo "Квадратный корень числа 3: " . roundSigFig(sqrt($c), countSigDig($c)) . "\n\n";
+echo "Кубический корень числа 1: " . roundSigFig(pow($a, 1/3), countSigDig($a)) . "\n";
+echo "Кубический корень числа 2: " . roundSigFig(pow($b, 1/3), countSigDig($b)) . "\n";
+echo "Кубический корень числа 3: " . roundSigFig(pow($c, 1/3), countSigDig($c)) . "\n";
+?>
